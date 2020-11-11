@@ -4,15 +4,16 @@ cameraVoips = []
 screenShares = []
 mappedCameraVoips = []
 mappedScreenShares = []
+extractedDirectory = ""
+
+def findFolder():
+    extractedDirectory = input("where is the file located\n")
+    findScreenShares(extractedDirectory)
+    findCameraVoips(extractedDirectory)
+    doMapping(extractedDirectory)
 
 
-def findShit():
-    indexstream = open("indexstream.xml" , "r")
-    print(cameraVoips)
 
-
-
-extractedDirectory = "."
 def findCameraVoips(extractedDirectory):
     for filename in os.listdir(extractedDirectory):
         if "cameraVoip" in filename:
@@ -57,8 +58,8 @@ def mapTimeVoip (line , time):
             mappedCameraVoips.append([exact , time])
             cameraVoips.remove(exact)
 
-def doMapping():
-    indexstream = open("indexstream.xml" , "r")
+def doMapping(extractedDirectory):
+    indexstream = open(extractedDirectory + "\indexstream.xml" , "r")
     for line in indexstream:
         if(containsTime(line)):
             time = line.split("\"")[1]
@@ -71,10 +72,42 @@ def doMapping():
 def mergeAudioAndVideo():
     os.system("ffmpeg -i screenshare_1_4.flv -i cameraVoip_0_3.flv -c:v copy -c:a aac output.mp4")
 
-findScreenShares(extractedDirectory)
-findCameraVoips(extractedDirectory)
-doMapping()
-print(*mappedCameraVoips , sep="\n")
-print(*mappedScreenShares , sep = "\n")
+def hReadableTime() :
+    for index in mappedCameraVoips :
+        time = int(index[1])
+        if time>3600000:
+            hour = int(time/3600000)
+            time = (time - hour*3600000)
+            minute = int(time/60000)
+            time = (time - minute * 60000)
+            print(index[0] + "  ==>   " + str(hour) + ":" + str(minute) + ":" + str(time))
+        elif time>60000:
+            minute = int(time/60000)
+            time = (time - (minute * 60000))
+            print(index[0] + "  ==>   " + "00" + ":" + str(minute) + ":" + str(time))
+        else:
+            print(index[0] + "  ==>   " + "00" + ":" + "00" + ":" + str(time))
+    for index in mappedScreenShares :
+        time = int(index[1])
+        if time>3600000:
+            hour = int(time/3600000)
+            time = (time - hour*3600000)
+            minute = int(time/60000)
+            time = (time - minute * 60000)
+            print(index[0] + "  ==>   " + str(hour) + ":" + str(minute) + ":" + str(time))
+        elif time>60000:
+            minute = int(time/60000)
+            time = (time - (minute * 60000))
+            print(index[0] + "  ==>   " + "00" + ":" + str(minute) + ":" + str(time))
+        else:
+            print(index[0] + "  ==>   " + "00" + ":" + "00" + ":" + str(time))
+        
+findFolder()
+# findScreenShares(extractedDirectory)
+# findCameraVoips(extractedDirectory)
+# doMapping()
+# print(*mappedCameraVoips , sep="\n")
+# print(*mappedScreenShares , sep = "\n")
+hReadableTime()
 
 #mergeAudioAndVideo()
